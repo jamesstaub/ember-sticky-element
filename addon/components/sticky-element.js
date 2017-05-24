@@ -6,7 +6,7 @@ const { computed, run: { scheduleOnce } } = Ember;
 export default Ember.Component.extend({
   layout,
   attributeBindings: ['style'],
-
+  classNameBindings: ['isStickyBottom'],
   /**
    * The offset from the top of the viewport when to start sticking to the top
    *
@@ -51,8 +51,10 @@ export default Ember.Component.extend({
    * @readOnly
    * @private
    */
-  isStickyBottom: computed('parentBottom', 'stickToBottom', function() {
-    return this.get('parentBottom') !== 'bottom' && this.get('stickToBottom');
+  isStickyBottom: computed('parentBottom', 'parentTop', 'stickToBottom', function() {
+      return this.get('parentBottom') === 'bottom'
+      && this.get('parentTop') !== 'in'
+      && this.get('stickToBottom');
   }).readOnly(),
 
   /**
@@ -132,7 +134,7 @@ export default Ember.Component.extend({
    */
   containerStyle: computed('isStickyTop', 'isStickyBottom', 'top', 'bottom', function() {
     if (this.get('isStickyBottom')) {
-      let style = `position: absolute; bottom: ${this.get('bottom')}px; width: ${this.get('ownWidth')}px`;
+      let style = `position: fixed; bottom: ${this.get('bottom')}px; width: ${this.get('ownWidth')}px`;
       return Ember.String.htmlSafe(style);
     }
     if (this.get('isStickyTop')) {
@@ -172,7 +174,7 @@ export default Ember.Component.extend({
       this.set('parentBottom', 'in');
     },
     parentBottomExited(top) {
-      // console.log('parentBottomExited', top);
+      console.log('parentBottomExited', top);
       this.set('parentBottom', top ? 'top' : 'bottom');
     }
   }
